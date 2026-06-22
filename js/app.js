@@ -13,6 +13,8 @@ const modalHeader = document.getElementById('modal-header');
 const tracklistEl = document.getElementById('tracklist');
 
 let currentAlbums = [];
+let currentAudio = null;
+let currentPlayButton = null;
 
 function getFavorites() {
     const saved = localStorage.getItem('vinil_favorites');
@@ -167,7 +169,13 @@ async function openModal(album) {
         tracklistEl.innerHTML = '';
         tracks.forEach((track, index) => {
             const li = document.createElement('li');
+            const hasPreview = track.previewUrl ? true : false;
+            const playBtnHTML = hasPreview 
+                ? `<button class="play-preview-btn" data-url="${track.previewUrl}" title="Tocar prévia">▶️</button>` 
+                : `<button class="play-preview-btn" disabled title="Prévia indisponível">🚫</button>`;
+
             li.innerHTML = `
+                ${playBtnHTML}
                 <span class="track-number">${index + 1}</span> 
                 <span class="track-name">${track.trackName}</span> 
                 <span class="track-time">${formatTime(track.trackTimeMillis)}</span>
@@ -181,16 +189,59 @@ async function openModal(album) {
     }
 }
 
+function stopAudio() {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+        if (currentPlayButton) currentPlayButton.textContent = '▶️';
+        currentPlayButton = null;
+    }
+}
+
 closeModalBtn.addEventListener('click', () => {
     modalOverlay.classList.add('hidden');
     tracklistEl.innerHTML = '';
+    stopAudio();
 });
 
 modalOverlay.addEventListener('click', (event) => {
     if (event.target === modalOverlay) {
         modalOverlay.classList.add('hidden');
         tracklistEl.innerHTML = '';
+        stopAudio();
     }
+});
+
+tracklistEl.addEventListener('click', (event) => {
+    const btn = event.target.closest('.play-preview-btn');
+    if (!btn || btn.disabled) return;
+
+    const url = btn.getAttribute('data-url');
+
+    if (currentAudio && currentAudio.src === url) {
+        if (currentAudio.paused) {
+            currentAudio.play();
+            btn.textContent = '⏸️';
+        } else {
+            currentAudio.pause();
+            btn.textContent = '▶️';
+        }
+        return;
+    }
+
+    stopAudio();
+
+    currentAudio = new Audio(url);
+    currentPlayButton = btn;
+    
+    currentAudio.play();
+    btn.textContent = '⏸️';
+
+    currentAudio.addEventListener('ended', () => {
+        btn.textContent = '▶️';
+        currentPlayButton = null;
+        currentAudio = null;
+    });
 });
 
 function debounce(func, delay) {

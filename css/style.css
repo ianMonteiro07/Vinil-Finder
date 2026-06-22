@@ -350,3 +350,27 @@ main {
     color: var(--text-secondary);
     font-size: 0.9rem;
 }
+
+
+.play-preview-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-right: 15px;
+    transition: transform 0.2s;
+    width: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.play-preview-btn:hover {
+    transform: scale(1.2);
+}
+
+.play-preview-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+}
