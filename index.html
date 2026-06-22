@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinil Finder - Acervo Musical</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <h1> Vinil Finder</h1>
+            <div class="controls">
+                <input type="text" id="search-input" placeholder="Buscar artista (ex: Elis Regina)...">
+                <button id="search-btn">Buscar</button>
+                <select id="sort-filter">
+                    <option value="relevance">Mais Relevantes</option>
+                    <option value="date-new">Mais Recentes</option>
+                    <option value="date-old">Mais Antigos</option>
+                    <option value="price-low">Menor Preço</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div id="status-message" class="status-message">
+            Digite o nome de um artista para explorar seu acervo musical.
+        </div>
+        <section id="albums-grid" class="albums-grid"></section>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
