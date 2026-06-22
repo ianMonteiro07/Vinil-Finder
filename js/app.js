@@ -7,6 +7,11 @@ const sortFilter = document.getElementById('sort-filter');
 const albumsGrid = document.getElementById('albums-grid');
 const statusMessage = document.getElementById('status-message');
 
+const modalOverlay = document.getElementById('tracklist-modal');
+const closeModalBtn = document.getElementById('close-modal');
+const modalHeader = document.getElementById('modal-header');
+const tracklistEl = document.getElementById('tracklist');
+
 let currentAlbums = [];
 
 function getFavorites() {
@@ -121,7 +126,7 @@ function renderAlbums(albums) {
         `;
 
         card.addEventListener('click', () => {
-            window.open(album.collectionViewUrl, '_blank');
+            openModal(album);
         });
 
         const favBtn = card.querySelector('.favorite-btn');
@@ -133,6 +138,60 @@ function renderAlbums(albums) {
         albumsGrid.appendChild(card);
     });
 }
+
+function formatTime(millis) {
+    if (!millis) return '--:--';
+    const minutes = Math.floor(millis / 60000);
+    const seconds = ((millis % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+}
+
+async function openModal(album) {
+    modalOverlay.classList.remove('hidden');
+    modalHeader.innerHTML = `<h2>${album.collectionName}</h2><p>${album.artistName}</p>`;
+    tracklistEl.innerHTML = '<li>Buscando faixas no acervo...</li>';
+
+    try {
+        const response = await fetch(`https://itunes.apple.com/lookup?id=${album.collectionId}&entity=song`);
+        if (!response.ok) throw new Error('Falha na API');
+        
+        const data = await response.json();
+        
+        const tracks = data.results.filter(item => item.wrapperType === 'track');
+
+        if (tracks.length === 0) {
+            tracklistEl.innerHTML = '<li>Nenhuma faixa encontrada.</li>';
+            return;
+        }
+
+        tracklistEl.innerHTML = '';
+        tracks.forEach((track, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span class="track-number">${index + 1}</span> 
+                <span class="track-name">${track.trackName}</span> 
+                <span class="track-time">${formatTime(track.trackTimeMillis)}</span>
+            `;
+            tracklistEl.appendChild(li);
+        });
+
+    } catch (error) {
+        console.error(error);
+        tracklistEl.innerHTML = '<li>Erro ao carregar as faixas.</li>';
+    }
+}
+
+closeModalBtn.addEventListener('click', () => {
+    modalOverlay.classList.add('hidden');
+    tracklistEl.innerHTML = '';
+});
+
+modalOverlay.addEventListener('click', (event) => {
+    if (event.target === modalOverlay) {
+        modalOverlay.classList.add('hidden');
+        tracklistEl.innerHTML = '';
+    }
+});
 
 function debounce(func, delay) {
     let timeoutId;
