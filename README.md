@@ -2,7 +2,7 @@
 
 Projeto web desenvolvido como atividade acadêmica para consumo de APIs públicas e boas práticas de desenvolvimento front-end.
 
-## 🚀 Como executar localmente
+##  Como executar localmente
 
 1. Clone este repositório:
    cole:
